@@ -1,0 +1,62 @@
+version: "3.7"
+services:
+  postgres:
+    env_file: compose.env
+    image: postgres:latest
+    container_name: airflow_db
+    restart: unless-stopped
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  airflow-webserver:
+    env_file: compose.env
+    image: apache/airflow:latest
+    container_name: airflow_webserver
+    command: [ "webserver" ]
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:8080:8080"
+    depends_on:
+      - postgres
+      - airflow-init
+    volumes:
+      - dags_data:/opt/airflow/dags
+      - airflow_data:/opt/airflow
+
+  airflow-scheduler:
+    env_file: compose.env
+    image: apache/airflow:latest
+    container_name: airflow_scheduler
+    command: [ "scheduler" ]
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - airflow-init
+    volumes:
+      - dags_data:/opt/airflow/dags
+      - airflow_data:/opt/airflow
+
+  airflow-init:
+    env_file: compose.env
+    image: apache/airflow:latest
+    container_name: airflow_init
+    entrypoint: [ "/bin/bash" ]
+    command: [ "/compose-init.sh" ]
+    restart: "no"
+    depends_on:
+      - postgres
+    volumes:
+      - ./compose-init.sh:/compose-init.sh
+
+volumes:
+  dags_data:
+    external: false
+    driver: local
+    driver_opts:
+      type: bind
+      o: bind
+      device: "$PWD/dags"
+  airflow_data:
+    external: false
+  db_data:
+    external: false
