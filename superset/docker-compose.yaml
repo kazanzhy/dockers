@@ -1,0 +1,53 @@
+version: "3.7"
+services:
+  redis:
+    env_file: compose.env
+    image: redis:latest
+    container_name: superset_cache
+    restart: unless-stopped
+    volumes:
+      - cache_data:/data
+
+  postgres:
+    env_file: compose.env
+    image: postgres:latest
+    container_name: superset_db
+    restart: unless-stopped
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  superset:
+    env_file: compose.env
+    image: apache/superset:latest
+    container_name: superset_app
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:8088:8088"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - app_data:/app/superset_home
+      - ./compose-superset_config.py:/app/pythonpath/superset_config.py
+
+  superset-init:
+    env_file: compose.env
+    image: apache/superset:latest
+    container_name: superset_init
+    entrypoint: ["/bin/bash"]
+    command: ["/compose-init.sh"]
+    restart: no
+    depends_on:
+      - redis
+      - postgres
+    volumes:
+      - ./compose-init.sh:/compose-init.sh
+      - ./compose-superset_config.py:/app/pythonpath/superset_config.py
+
+volumes:
+  cache_data:
+    external: false
+  db_data:
+    external: false
+  app_data:
+    external: false
