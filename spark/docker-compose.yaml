@@ -1,0 +1,35 @@
+version: "3.7"
+services:
+  master:
+    env_file: compose.env
+    image: kazanzhy/spark:latest
+    build: .
+    container_name: spark_master
+    command: [ "/opt/spark/sbin/start-master.sh" ]
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:7077:7077"
+      - "0.0.0.0:7070:7070"
+    volumes:
+      - jars_data:/home/spark/jars
+
+  worker-1:
+    env_file: compose.env
+    image: kazanzhy/spark:latest
+    build: .
+    container_name: spark_worker_1
+    command: [ "/opt/spark/sbin/start-worker.sh", "spark://master:7077" ]
+    restart: unless-stopped
+    depends_on:
+      - master
+    volumes:
+      - jars_data:/home/spark/jars
+
+volumes:
+  jars_data:
+    external: false
+    driver: local
+    driver_opts:
+      type: bind
+      o: bind
+      device: "$PWD/jars"
