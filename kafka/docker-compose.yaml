@@ -1,0 +1,108 @@
+version: "3.7"
+services:
+  zookeeper:
+    env_file: compose.env
+    image: confluentinc/cp-zookeeper:latest
+    container_name: kafka_zookeeper
+    hostname: zookeeper
+    ports:
+      - "2181:2181"
+    volumes:
+      - shared_data:/home/shared
+
+  broker:
+    env_file: compose.env
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka_broker
+    hostname: broker
+    ports:
+      - "29092:29092"
+      - "9092:9092"
+      - "9101:9101"
+    depends_on:
+      - zookeeper
+    volumes:
+      - shared_data:/home/shared
+
+  schema-registry:
+    env_file: compose.env
+    image: confluentinc/cp-schema-registry:latest
+    container_name: kafka_schema_registry
+    hostname: schema-registry
+    ports:
+      - "8081:8081"
+    depends_on:
+      - broker
+    volumes:
+      - shared_data:/home/shared
+
+  connect:
+    env_file: compose.env
+    image: confluentinc/cp-kafka-connect:latest
+    container_name: kafka_connect
+    ports:
+      - "8083:8083"
+    depends_on:
+      - broker
+      - schema-registry
+    volumes:
+      - shared_data:/home/shared
+
+  streams:
+    env_file: compose.env
+    image: confluentinc/cp-kafka-streams-examples:latest
+    container_name: kafka_streams
+    depends_on:
+      - broker
+    volumes:
+      - shared_data:/home/shared
+
+  rest-proxy:
+    env_file: compose.env
+    image: confluentinc/cp-kafka-rest:latest
+    container_name: kafka_rest_proxy
+    hostname: rest-proxy
+    depends_on:
+      - broker
+      - schema-registry
+    ports:
+      - 8082:8082
+    volumes:
+      - shared_data:/home/shared
+
+  ksqldb-server:
+    env_file: compose.env
+    image: confluentinc/ksqldb-server:latest
+    container_name: kafka_ksqldb_server
+    hostname: ksqldb-server
+    depends_on:
+      - broker
+      - schema-registry
+      - connect
+    ports:
+      - "8088:8088"
+    volumes:
+      - shared_data:/home/shared
+
+  ksqldb-cli:
+    env_file: compose.env
+    image: confluentinc/ksqldb-cli:latest
+    container_name: kafka_ksqldb_cli
+    depends_on:
+      - broker
+      - schema-registry
+      - connect
+      - ksqldb-server
+    entrypoint: /bin/sh
+    tty: true
+    volumes:
+      - shared_data:/home/shared
+
+volumes:
+  shared_data:
+    external: false
+    driver: local
+    driver_opts:
+      type: bind
+      o: bind
+      device: "$PWD/shared"
