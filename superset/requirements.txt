@@ -3,6 +3,7 @@ apache-superset
 cryptography
 gunicorn[gevent]
 Pillow
+psycopg2
 redis
 
 # Libs for FBProphet
@@ -11,13 +12,13 @@ numpy
 pystan<3
 
 # Drivers to connect to popular databases
-cx_Oracle # Oracle
-psycopg2 # PostgreSQL
-mysqlclient # MySQL
-pymssql # SQL Server
-sqlalchemy-vertica-python # Vertica
-clickhouse-driver # ClickHouse
-clickhouse-sqlalchemy # ClickHouse
-snowflake-sqlalchemy # Snowflake
-pybigquery # Big Query
-sqlalchemy-redshift # Amazon Redshift
+cx_Oracle                   # Oracle
+psycopg2                    # PostgreSQL
+mysqlclient                 # MySQL
+pymssql                     # SQL Server
+sqlalchemy-vertica-python   # Vertica
+clickhouse-driver           # ClickHouse
+clickhouse-sqlalchemy       # ClickHouse
+snowflake-sqlalchemy        # Snowflake
+pybigquery                  # Big Query
+sqlalchemy-redshift         # Amazon Redshift

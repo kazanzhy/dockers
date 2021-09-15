@@ -1,9 +1,8 @@
 ## Apache Superset 
 ### Docker image
-This image contains all services **in one image**:
-- Base image Debian: python:latest
+Base image Debian with the latest Python. Image contains following services inside:
 - Apache Superset (latest)
-- SQLite (latest)
+- PostgreSQL (latest)
 - Redis (latest)  
 
 Either build image:
@@ -17,7 +16,7 @@ gedit superset_config.py
 gedit gunicorn_config.py
 
 # Build the new image
-docker build -t superset .
+docker build -t kazanzhy/superset .
 ```
 Or get image with default configs from Docker Hub:
 ```shell
@@ -25,12 +24,12 @@ docker pull kazanzhy/superset:latest
 docker image tag kazanzhy/superset:latest superset:latest
 ```
 Run Superset:
-```
-docker run -d -p 8088:8088 --name superset_app superset
-```
-Run Superset with custom DB:
 ```shell
-docker run -d -p 8088:8088 --name superset_app -v /../superset.db:/home/app/superset.db superset
+docker run -d -p 8088:8088 --name superset_app kazanzhy/superset
+```
+Run Superset mounted to existing PGDATA:
+```shell
+docker run -d -p 8088:8088 --name superset_app -v /../pgdata:/home/app/pgdata superset
 ```
 Follow and use login `admin` and password `admin`:  
 http://localhost:8088  
@@ -40,14 +39,9 @@ Interact with container:
 docker exec -it superset_app bash
 ```
 
-Stop container:
-```shell
-docker stop superset_app
+Start/Stop/Remove container:
 ```
-
-Remove container:
-```shell
-docker rm superset_app bash
+docker (start | stop | rm) superset_app
 ```
 
 ### Docker Compose

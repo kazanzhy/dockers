@@ -30,7 +30,8 @@ CACHE_CONFIG = {
 # The SQLAlchemy connection string to your database backend
 # This connection defines the path to the database that stores your superset metadata (connections, tables, dashboards, ...)
 # Note that the connection information to connect to the datasources you want to explore are in the web UI
-SQLALCHEMY_DATABASE_URI = f"sqlite:///{BASE_DIR}/superset.db"
+#SQLALCHEMY_DATABASE_URI = f"sqlite:///{BASE_DIR}/superset.db"
+SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://superset:superset@localhost:5432/superset"
 
 
 #------------------------------------------------------------------------------------------------------------------
