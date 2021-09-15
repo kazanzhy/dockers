@@ -1,0 +1,80 @@
+version: "3.7"
+services:
+  redis:
+    env_file: .env
+    image: redis:latest
+    container_name: superset_cache
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - cache_data:/data
+
+  postgres:
+    env_file: .env
+    image: postgres:latest
+    container_name: superset_db
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  superset-app:
+    env_file: .env
+    image: apache/superset:latest
+    container_name: superset_app
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:8088:8088"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - app_data:/app/superset_home
+
+  superset-init:
+    env_file: .env
+    image: apache/superset:latest
+    container_name: superset_init
+    command: ["/app/docker/docker-init.sh"]
+    depends_on:
+      - postgres
+      - redis
+    user: "root"
+    volumes:
+      - app_data:/app/superset_home
+
+  superset-worker:
+    env_file: .env
+    image: apache/superset:latest
+    container_name: superset_worker
+    command: ["/app/docker/docker-bootstrap.sh", "worker"]
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+    user: "root"
+    volumes:
+      - app_data:/app/superset_home
+
+  superset-beat:
+    env_file: .env
+    image: apache/superset:latest
+    container_name: superset_beat
+    command: ["/app/docker/docker-bootstrap.sh", "beat"]
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+    user: "root"
+    volumes:
+      - app_data:/app/superset_home
+
+volumes:
+  cache_data:
+    external: false
+  db_data:
+    external: false
+  app_data:
+    external: false
