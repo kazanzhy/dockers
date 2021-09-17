@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   redis:
-    env_file: docker-compose.env
+    env_file: compose.env
     image: redis:latest
     container_name: superset_cache
     restart: unless-stopped
@@ -9,7 +9,7 @@ services:
       - cache_data:/data
 
   postgres:
-    env_file: docker-compose.env
+    env_file: compose.env
     image: postgres:latest
     container_name: superset_db
     restart: unless-stopped
@@ -17,7 +17,7 @@ services:
       - db_data:/var/lib/postgresql/data
 
   superset:
-    env_file: docker-compose.env
+    env_file: compose.env
     image: apache/superset:latest
     container_name: superset_app
     restart: unless-stopped
@@ -28,21 +28,21 @@ services:
       - redis
     volumes:
       - app_data:/app/superset_home
+      - ./compose-superset_config.py:/app/pythonpath/superset_config.py
 
   superset-init:
-    env_file: docker-compose.env
+    env_file: compose.env
     image: apache/superset:latest
     container_name: superset_init
     entrypoint: ["/bin/bash"]
-    command: ["/docker-compose-init.sh"]
-    user: "root"
-    restart: "no"
+    command: ["/compose-init.sh"]
+    restart: no
     depends_on:
       - redis
       - postgres
-      - superset
     volumes:
-      - ./docker-compose-init.sh:/docker-compose-init.sh
+      - ./compose-init.sh:/compose-init.sh
+      - ./compose-superset_config.py:/app/pythonpath/superset_config.py
 
 volumes:
   cache_data:
