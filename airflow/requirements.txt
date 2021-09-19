@@ -1,0 +1,2 @@
+apache-airflow[async,amazon,celery,cncf.kubernetes,docker,dask,elasticsearch,ftp,grpc,hashicorp,http,ldap,google,google_auth,microsoft.azure,mysql,pandas,postgres,redis,sendgrid,sftp,slack,ssh,statsd,virtualenv]
+psycopg2
